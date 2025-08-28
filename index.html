@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <!-- keep script in head but use defer -->
+  <script src="./js/main.js" defer></script>
+</head>
+<body>
+  <div>
+    <h1>welcome to my weblog!</h1>
+  </div>
+  <form id="blogPostForm">
+    <div class="form-group">
+        <input
+        type="text"
+        id="title"
+        placeholder="write..."
+        required
+        maxlength="200"
+        >
+    </div>
+
+    <div class="form-group">
+        <label for="text"></label>
+        <textarea
+            id="text"
+        name="text"
+        placeholder="write blog post here"
+        required
+        minlength="10" 
+        ></textarea>
+    </div>
+    <button type="submit" id="submit_btn">Create Blog Post</button>
+
+  </form>
+
+</body>
+</html>
