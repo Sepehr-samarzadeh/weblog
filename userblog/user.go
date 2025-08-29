@@ -1,6 +1,10 @@
 package userblog
 
-import "weblog/db"
+import (
+	"errors"
+	"weblog/authentication"
+	"weblog/db"
+)
 
 type User struct {
 	Id       int    `json:"id"`
@@ -19,7 +23,12 @@ func (u *User) RegisterUser() error {
 	}
 	defer stm.Close()
 
-	result, err := stm.Exec(u.Name, u.UserName, u.Email, u.Password)
+	hashedpassword, err := authentication.HashPassword(u.Password)
+	if err != nil {
+		return err
+	}
+
+	result, err := stm.Exec(u.Name, u.UserName, u.Email, hashedpassword)
 
 	if err != nil {
 		panic(err)
@@ -29,4 +38,25 @@ func (u *User) RegisterUser() error {
 	u.Id = int(id)
 
 	return err
+}
+
+func (u *User) ValidateCredentials() error {
+	query := "SELECT id, password FROM users WHERE email = ?"
+
+	row := db.DB.QueryRow(query, u.Email)
+
+	var retrievedPassword string
+
+	err := row.Scan(&u.Id, &retrievedPassword)
+
+	if err != nil {
+		return err
+	}
+	passwordIsValid := authentication.CheckPasswordHash(u.Password, retrievedPassword)
+
+	if !passwordIsValid {
+		return errors.New("credentials invalid")
+	}
+
+	return nil
 }
