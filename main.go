@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"strconv"
 	"weblog/authentication"
 	"weblog/db"
 	"weblog/post"
@@ -61,6 +62,29 @@ func Register(ctx *gin.Context) {
 
 }
 
+func Deregister(ctx *gin.Context) {
+	userid, err := strconv.ParseInt(ctx.Param("id"), 10, 64)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"message": "could not parse user id"})
+		return
+	}
+	user, err := userblog.GetUserById(userid)
+
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "could not fetch user"})
+		return
+	}
+
+	err = user.Delete()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"message": "could not delete user"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"messahe": "user deleted successfully"})
+
+}
+
 func main() {
 	err := godotenv.Load()
 
@@ -80,6 +104,7 @@ func main() {
 
 	router.POST("/data", AdddummyData)
 	router.POST("register", Register)
+	router.DELETE("/deregister/:id", Deregister)
 
 	router.Run(":8080")
 
